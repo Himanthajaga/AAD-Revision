@@ -50,7 +50,7 @@
                     <form>
                         <div class="mb-3">
                             <label for="user_id" class="form-label">User Id</label>
-                            <input type="text" class="form-control" id="update_user_id">
+                            <input type="text" class="form-control" id="update_user_id" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="user_name" class="form-label">User name</label>
@@ -77,9 +77,37 @@
         </tbody>
     </table>
 </div>
+<!-- Dropdown for Users -->
+<div class="mb-3">
+    <label for="user_dropdown" class="form-label">Select User</label>
+    <select id="user_dropdown" class="form-select">
+        <option value="">--Select User--</option>
+    </select>
+</div>
 
-<script src="js/jquery-3.7.1.min.js"></script>
+<script src="Js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $.ajax({
+        url: "https://7cc1cfeeb50943f4b08634cf5a896a67.weavy.io/api/users",
+        type: 'GET',
+        headers: {
+            'Authorization': 'Bearer wys_3hVnMhH9ke7MzYGESddp7YjGDeFgZk0seOe7',
+            'Content-Type': 'application/json'
+        },
+        success: (res) => {
+            const users = res.data
+            const dropdownMenu = $('#user_dropdown')
+            dropdownMenu.empty()
+
+            users.forEach(user => {
+                dropdownMenu.append(`
+                    <option value="${user.uid}">${user.display_name}</option>
+                `)
+            })
+        },
+    })
+</script>
 <script>
     // https://sample
 
@@ -102,9 +130,12 @@
             // data: userData, wrong
             data: JSON.stringify(userData), // js obj ==> json
             success: (res) => {
+                alert('User added successfully')
+                fetchUsers()
                 console.log(res)
             },
             error: (err) => {
+                alert('User cannot be added')
                 console.error(err)
             }
         })
@@ -114,6 +145,7 @@
     //
     // })
 
+const fetchUsers= () => {
     $.ajax({
         url: "https://7cc1cfeeb50943f4b08634cf5a896a67.weavy.io/api/users",
         type: 'GET',
@@ -122,6 +154,8 @@
             const users = res.data
 
             const tableBody = $('#user_table_body')
+            const dropdownMenu = $('#user_dropdown')
+            tableBody.empty()
 
             users.forEach(user => {
                 // ''
@@ -146,6 +180,8 @@
             console.error(err)
         }
     })
+}
+
     //update user
     $('#btn_update_user').click((e) => {
         e.preventDefault()
@@ -165,11 +201,14 @@
             },
             data: JSON.stringify(userData),
             success: (res) => {
+                alert('User updated successfully')
+                fetchUsers()
                 console.log(res)
                 $('#updateUserModal').modal('hide')
                 location.reload() // Reload the page to see the updated user list
             },
             error: (err) => {
+                alert('User cannot be updated')
                 console.error(err)
             }
         })
@@ -180,31 +219,31 @@
         $('#update_user_name').val(name)
         $('#updateUserModal').modal('show')
     }
-
-        const deleteUser = (uid) => {
-            if (confirm('Are you sure you want to delete this user?')) {
-                $.ajax({
-                    url: `https://7cc1cfeeb50943f4b08634cf5a896a67.weavy.io/api/users/${uid}`,
-                    type: 'DELETE',
-                    headers: {
-                        'Authorization': 'Bearer wys_3hVnMhH9ke7MzYGESddp7YjGDeFgZk0seOe7',
-                        'Content-Type': 'application/json'
-                    },
-                    success: (res) => {
-                        console.log(res)
-                        location.reload() // Reload the page to see the updated user list
-                    },
-                    error: (err) => {
-                        console.error(err)
-                    }
-                })
-            }
+const deleteUser = (uid) => {
+        if (confirm('Are you sure you want to delete this user?')) {
+            $.ajax({
+                url: `https://7cc1cfeeb50943f4b08634cf5a896a67.weavy.io/api/users/${uid}`,
+                type: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer wys_3hVnMhH9ke7MzYGESddp7YjGDeFgZk0seOe7',
+                    'Content-Type': 'application/json'
+                },
+                success: (res) => {
+                    alert('User deleted successfully')
+                    fetchUsers()
+                    console.log(res)
+                },
+                error: (err) => {
+                    alert('User cannot be deleted')
+                    console.error(err)
+                }
+            })
         }
-    // function editUser() {
-    //
-    // }
-
-
+}
+fetchUsers()
+    $(document).ready(function () {
+         fetchUsers()
+     })
 </script>
 </body>
 </html>
